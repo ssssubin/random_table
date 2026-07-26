@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>자리 랜덤 배치</title>
+
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎉 BETWEEN PARTY 🎉</h1>
+      </header>
+
+      <!-- 기본 설정 -->
+      <section class="card">
+        <h2>기본 설정</h2>
+
+        <div class="input-grid">
+          <div class="input-box">
+            <label for="maleCount">남성 인원</label>
+            <input type="number" id="maleCount" min="1" placeholder="예: 10" />
+          </div>
+
+          <div class="input-box">
+            <label for="femaleCount">여성 인원</label>
+            <input type="number" id="femaleCount" min="1" placeholder="예: 8" />
+          </div>
+
+          <div class="input-box">
+            <label for="tableCount">테이블 개수</label>
+            <input type="number" id="tableCount" min="1" placeholder="예: 3" />
+          </div>
+        </div>
+      </section>
+
+      <!-- 남성 그룹 -->
+      <section class="card">
+        <div class="section-title">
+          <h2>👨 같이 앉힐 남성 그룹</h2>
+
+          <button id="addMaleGroup" class="add-btn">+ 그룹 추가</button>
+        </div>
+
+        <div id="maleGroups">
+          <!-- JS에서 생성 -->
+        </div>
+      </section>
+
+      <!-- 여성 그룹 -->
+      <section class="card">
+        <div class="section-title">
+          <h2>👩 같이 앉힐 여성 그룹</h2>
+
+          <button id="addFemaleGroup" class="add-btn">+ 그룹 추가</button>
+        </div>
+
+        <div id="femaleGroups">
+          <!-- JS에서 생성 -->
+        </div>
+      </section>
+
+      <!-- 버튼 -->
+      <section class="button-area">
+        <button id="generateBtn" class="primary-btn">🎲 랜덤 배치</button>
+      </section>
+
+      <!-- 에러 -->
+      <section>
+        <div id="errorMessage" class="error-message"></div>
+      </section>
+
+      <!-- 결과 -->
+      <section class="result-section">
+        <h2>배치 결과</h2>
+
+        <div id="resultArea" class="result-grid">
+          <div class="empty-message">아직 배치 결과가 없습니다.</div>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="script.js"></script>
+  </body>
+</html>
