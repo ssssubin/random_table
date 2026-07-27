@@ -10,9 +10,11 @@ const tableCountInput = document.getElementById("tableCount");
 
 const maleGroups = document.getElementById("maleGroups");
 const femaleGroups = document.getElementById("femaleGroups");
+const mixedGroups = document.getElementById("mixedGroups");
 
 const addMaleGroupBtn = document.getElementById("addMaleGroup");
 const addFemaleGroupBtn = document.getElementById("addFemaleGroup");
+const addMixedGroupBtn = document.getElementById("addMixedGroup");
 
 const generateBtn = document.getElementById("generateBtn");
 
@@ -31,21 +33,25 @@ addMaleGroupBtn.addEventListener("click", () => {
 });
 
 addFemaleGroupBtn.addEventListener("click", () => {
-  createGroupInput(femaleGroups, "여성");
+  createGroupInput(femaleGroups, "여성 번호 입력 (예 : 1,3,5)");
+});
+
+addMixedGroupBtn.addEventListener("click", () => {
+  createGroupInput(mixedGroups, "혼성 그룹 입력 -> 남|여 (예 : 1,2|3,4)");
 });
 
 // ===============================
 // 그룹 Input 생성
 // ===============================
 
-function createGroupInput(container, gender) {
+function createGroupInput(container, placeholder) {
   const group = document.createElement("div");
 
   group.className = "group";
   group.innerHTML = `
         <input
             type="text"
-            placeholder="${gender} 번호 입력 (예 : 1,3,5)"
+            placeholder="${placeholder}"
         >
         <button class="remove-btn">✕</button>
     `;
@@ -60,6 +66,13 @@ function createGroupInput(container, gender) {
 // ===============================
 // 그룹 읽기
 // ===============================
+function parseNumbers(value) {
+  return value
+    .split(",")
+    .map((v) => Number(v.trim()))
+    .filter((v) => !isNaN(v));
+}
+
 function getGroups(container) {
   const groups = [];
 
@@ -68,12 +81,33 @@ function getGroups(container) {
     const value = input.value.trim();
     if (value === "") return;
 
-    const members = value
-      .split(",")
-      .map((v) => Number(v.trim()))
-      .filter((v) => !isNaN(v));
+    const members = parseNumbers(value);
+    if (members.length > 0) {
+      groups.push(members);
+    }
+  });
 
-    groups.push(members);
+  return groups;
+}
+
+function getMixedGroups(container) {
+  const groups = [];
+
+  const inputs = container.querySelectorAll("input");
+  inputs.forEach((input) => {
+    const value = input.value.trim();
+    if (value === "") return;
+
+    const [malePart, femalePart] = value.split(/[|/]/);
+    const maleMembers = parseNumbers(malePart || "");
+    const femaleMembers = parseNumbers(femalePart || "");
+
+    if (maleMembers.length > 0 && femaleMembers.length > 0) {
+      groups.push({
+        male: maleMembers,
+        female: femaleMembers,
+      });
+    }
   });
 
   return groups;
@@ -88,6 +122,7 @@ function getCondition() {
 
     maleGroups: getGroups(maleGroups),
     femaleGroups: getGroups(femaleGroups),
+    mixedGroups: getMixedGroups(mixedGroups),
   };
 }
 

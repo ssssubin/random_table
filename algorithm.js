@@ -35,8 +35,8 @@ function applyCapacity(tables, maleCount, femaleCount) {
 }
 
 // 그룹을 큰 순서대로 정렬
-function sortGroups(groups) {
-  return [...groups].sort((a, b) => b.length - a.length);
+function sortGroups(groups, getLength = (group) => group.length) {
+  return [...groups].sort((a, b) => getLength(b) - getLength(a));
 }
 
 // 셔플
@@ -56,13 +56,22 @@ function createPeople(count) {
   return Array.from({ length: count }, (_, i) => i + 1);
 }
 
+function mergeAssignedSets(...sets) {
+  const merged = new Set();
+
+  sets.forEach((set) => {
+    set.forEach((person) => merged.add(person));
+  });
+
+  return merged;
+}
+
 // 그룹 먼저 배치
 function placeGroups(groups, tables, gender) {
   const assigned = new Set();
   const sortedGroups = sortGroups(groups);
 
   for (const group of sortedGroups) {
-    // 현재 배치 가능한 테이블 찾기
     const candidates = tables.filter((table) => {
       const remain =
         gender === "male"
@@ -76,7 +85,6 @@ function placeGroups(groups, tables, gender) {
       throw new Error("그룹을 배치할 수 없습니다.");
     }
 
-    // 같은 성별이 가장 적게 앉아있는 테이블 찾기
     let minCount = Infinity;
     candidates.forEach((table) => {
       const count = gender === "male" ? table.male.length : table.female.length;
@@ -85,13 +93,11 @@ function placeGroups(groups, tables, gender) {
       }
     });
 
-    // 최소 인원인 테이블만 추출
     const bestTables = candidates.filter((table) => {
       const count = gender === "male" ? table.male.length : table.female.length;
       return count === minCount;
     });
 
-    // 그 중 랜덤 선택
     const target = bestTables[Math.floor(Math.random() * bestTables.length)];
     if (gender === "male") {
       target.male.push(...group);
@@ -102,6 +108,54 @@ function placeGroups(groups, tables, gender) {
   }
 
   return assigned;
+}
+
+function placeMixedGroups(groups, tables) {
+  const assignedMale = new Set();
+  const assignedFemale = new Set();
+  const sortedGroups = sortGroups(
+    groups,
+    (group) => group.male.length + group.female.length,
+  );
+
+  for (const group of sortedGroups) {
+    const candidates = tables.filter((table) => {
+      const maleRemain = table.maleCapacity - table.male.length;
+      const femaleRemain = table.femaleCapacity - table.female.length;
+
+      return (
+        maleRemain >= group.male.length && femaleRemain >= group.female.length
+      );
+    });
+
+    if (candidates.length === 0) {
+      throw new Error("혼성 그룹을 배치할 수 없습니다.");
+    }
+
+    let minCount = Infinity;
+    candidates.forEach((table) => {
+      const count = table.male.length + table.female.length;
+      if (count < minCount) {
+        minCount = count;
+      }
+    });
+
+    const bestTables = candidates.filter((table) => {
+      return table.male.length + table.female.length === minCount;
+    });
+
+    const target = bestTables[Math.floor(Math.random() * bestTables.length)];
+    target.male.push(...group.male);
+    target.female.push(...group.female);
+
+    group.male.forEach((person) => assignedMale.add(person));
+    group.female.forEach((person) => assignedFemale.add(person));
+  }
+
+  return {
+    male: assignedMale,
+    female: assignedFemale,
+  };
 }
 
 // 남은 사람 찾기
@@ -141,8 +195,15 @@ export function generateSeat(condition) {
   const males = createPeople(condition.maleCount);
   const females = createPeople(condition.femaleCount);
 
-  const assignedMale = placeGroups(condition.maleGroups, tables, "male");
-  const assignedFemale = placeGroups(condition.femaleGroups, tables, "female");
+  const mixedAssigned = placeMixedGroups(condition.mixedGroups || [], tables);
+  const assignedMale = mergeAssignedSets(
+    placeGroups(condition.maleGroups || [], tables, "male"),
+    mixedAssigned.male,
+  );
+  const assignedFemale = mergeAssignedSets(
+    placeGroups(condition.femaleGroups || [], tables, "female"),
+    mixedAssigned.female,
+  );
 
   const remainMale = shuffle(getRemainingPeople(males, assignedMale));
   const remainFemale = shuffle(getRemainingPeople(females, assignedFemale));
