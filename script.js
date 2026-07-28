@@ -7,6 +7,7 @@ import { renderTables } from "./renderer.js";
 const maleCountInput = document.getElementById("maleCount");
 const femaleCountInput = document.getElementById("femaleCount");
 const tableCountInput = document.getElementById("tableCount");
+const tablesPerRowInput = document.getElementById("tablesPerRow");
 
 const maleGroups = document.getElementById("maleGroups");
 const femaleGroups = document.getElementById("femaleGroups");
@@ -20,6 +21,7 @@ const generateBtn = document.getElementById("generateBtn");
 
 const resultArea = document.getElementById("resultArea");
 const errorMessage = document.getElementById("errorMessage");
+const screenCard = document.querySelector(".screen-card");
 
 // 마지막 조건 저장
 let latestCondition = null;
@@ -115,10 +117,14 @@ function getMixedGroups(container) {
 
 // 조건 읽기
 function getCondition() {
+  const tablesPerRow = Number(tablesPerRowInput.value);
+
   return {
     maleCount: Number(maleCountInput.value),
     femaleCount: Number(femaleCountInput.value),
     tableCount: Number(tableCountInput.value),
+    tablesPerRow:
+      Number.isFinite(tablesPerRow) && tablesPerRow > 0 ? tablesPerRow : 3,
 
     maleGroups: getGroups(maleGroups),
     femaleGroups: getGroups(femaleGroups),
@@ -133,5 +139,8 @@ generateBtn.addEventListener("click", () => {
   const result = generateSeat(condition);
 
   latestCondition = condition;
-  renderTables(result);
+  if (screenCard) {
+    screenCard.classList.remove("hidden");
+  }
+  renderTables(result, condition.tablesPerRow, resultArea);
 });

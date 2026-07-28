@@ -178,12 +178,45 @@ function fillTables(tables, people, gender) {
   }
 }
 
-export function getColumnCount(tableCount) {
-  if (tableCount <= 3) {
-    return tableCount;
+export function getTableLayout(tableCount, tablesPerRow = 3) {
+  if (!Number.isInteger(tableCount) || tableCount < 1) {
+    return [];
   }
 
-  return Math.ceil(tableCount / 2);
+  if (!Number.isInteger(tablesPerRow) || tablesPerRow < 1) {
+    tablesPerRow = 3;
+  }
+
+  const rows = [];
+  const numbers = Array.from({ length: tableCount }, (_, i) => i + 1);
+  let startIndex = 0;
+  let rowIndex = 0;
+
+  while (startIndex < numbers.length) {
+    const remaining = numbers.length - startIndex;
+    const rowCount = Math.min(tablesPerRow, remaining);
+    const row = [];
+
+    if (rowIndex % 2 === 0) {
+      for (let i = 0; i < rowCount; i++) {
+        row.push(numbers[startIndex + i]);
+      }
+    } else {
+      for (let i = rowCount - 1; i >= 0; i--) {
+        row.push(numbers[startIndex + i]);
+      }
+    }
+
+    rows.push(row);
+    startIndex += rowCount;
+    rowIndex += 1;
+  }
+
+  return rows;
+}
+
+export function getColumnCount(tableCount, tablesPerRow = 3) {
+  return Math.min(tablesPerRow, tableCount);
 }
 
 // 전체 알고리즘

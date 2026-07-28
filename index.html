@@ -36,6 +36,16 @@
             <label for="tableCount">테이블 개수</label>
             <input type="number" id="tableCount" min="1" placeholder="예: 3" />
           </div>
+
+          <div class="input-box">
+            <label for="tablesPerRow">한 줄에 들어갈 테이블 수</label>
+            <select id="tablesPerRow">
+              <option value="1" selected>1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
         </div>
       </section>
 
@@ -92,8 +102,12 @@
       <section class="result-section">
         <h2>배치 결과</h2>
 
+        <div class="screen-card hidden" aria-label="스크린">
+          <span class="screen-title">🖥️ SCREEN</span>
+        </div>
+
         <div id="resultArea" class="result-grid">
-          <div class="empty-message">아직 배치 결과가 없습니다.</div>
+          <!-- <div class="empty-message">아직 배치 결과가 없습니다.</div> -->
         </div>
       </section>
     </div>
